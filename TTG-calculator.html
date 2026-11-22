@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>TG / TTG Refinement Planner</title>
+<style>
+  :root {
+    --bg: #0f172a;
+    --panel: #1e293b;
+    --panel2: #273449;
+    --text: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #38bdf8;
+    --good: #22c55e;
+    --warn: #f59e0b;
+    --bad: #ef4444;
+    --border: #334155;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(180deg, #0b1220, #0f172a 40%);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 24px;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; }
+  h1 { margin: 0 0 4px; font-size: 28px; }
+  .sub { color: var(--muted); margin-bottom: 20px; }
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 22px 0 10px;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+  }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  input[type="number"], select {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: #0b1220;
+    color: var(--text);
+    font-size: 15px;
+    outline: none;
+  }
+  input[type="number"]:focus, select:focus { border-color: var(--accent); }
+  .check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .check input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--accent);
+    cursor: pointer;
+  }
+  .check span { font-size: 14px; color: var(--text); }
+  button {
+    background: var(--accent);
+    color: #06202e;
+    border: 0;
+    border-radius: 10px;
+    padding: 12px 18px;
+    font-weight: 700;
+    font-size: 15px;
+    cursor: pointer;
+    transition: transform .08s ease, opacity .2s;
+  }
+  button:hover { opacity: .92; }
+  button:active { transform: translateY(1px); }
+  button.secondary {
+    background: var(--panel2);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .row { display: flex; gap: 12px; flex-wrap: wrap; align-items: center; }
+  .result {
+    margin-top: 18px;
+    display: grid;
+    gap: 12px;
+  }
+  .summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .stat {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px;
+  }
+  .stat .k { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+  .stat .v { font-size: 22px; font-weight: 700; margin-top: 4px; }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--panel);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  th, td {
+    padding: 10px 12px;
+    text-align: right;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  th:first-child, td:first-child { text-align: left; }
+  th {
+    background: #162033;
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  tr:last-child td { border-bottom: 0; }
+  .ok { color: var(--good); }
+  .no { color: var(--bad); }
+  .note { color: var(--muted); font-size: 13px; line-height: 1.5; }
+  .badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    background: #0b1220;
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .error { color: var(--bad); font-weight: 600; }
+  .buildings-summary {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    color: var(--muted);
+  }
+  .buildings-summary strong { color: var(--text); }
+  .building-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .building-card .b-title {
+    font-weight: 700;
+    font-size: 14px;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .building-card .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .building-card .field label {
+    margin: 0;
+    font-size: 12px;
+  }
+  .building-card .err {
+    color: var(--bad);
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .building-card.has-error {
+    border-color: var(--bad);
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>TG / TTG Refinement Planner</h1>
+  <div class="sub">
+    Weekly refinements: max 100. The 7 most costly refinements each week are 50% off.
+  </div>
+
+  <div class="section-title">Current resources</div>
+  <div class="grid">
+    <div class="card">
+      <label for="g0">Initial TG</label>
+      <input id="g0" type="number" min="0" step="any" value="3000" />
+    </div>
+    <div class="card">
+      <label for="h0">Initial TTG</label>
+      <input id="h0" type="number" min="0" step="1" value="0" />
+    </div>
+    <div class="card">
+      <label for="x">TG gained per day</label>
+      <input id="x" type="number" min="0" step="any" value="100" />
+    </div>
+    <div class="card">
+      <div class="check">
+        <input id="gg" type="checkbox" checked />
+        <span>Include Golden Glaives TTG</span>
+      </div>
+      <div class="note" style="margin-top:8px;">
+        Adds 1 TTG per week (event every 2 weeks gives 2 TTG).
+      </div>
+    </div>
+  </div>
+
+  <div class="section-title">Building levels</div>
+  <div class="grid" id="building-grid">
+    <!-- building cards injected by JS -->
+  </div>
+  <div class="buildings-summary" id="buildings-summary">
+    Select current and target building levels to compute target costs.
+  </div>
+  <div class="row" style="margin-top:12px;">
+    <button id="recalc" class="secondary" type="button">Recalculate targets from buildings</button>
+  </div>
+
+  <div class="section-title">Targets</div>
+  <div class="grid">
+    <div class="card">
+      <label for="y">Target TG</label>
+      <input id="y" type="number" min="0" step="any" value="0" />
+    </div>
+    <div class="card">
+      <label for="z">Target TTG</label>
+      <input id="z" type="number" min="0" step="1" value="0" />
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:8px;">
+    <button id="run">Compute optimal plan</button>
+    <span class="badge" id="status">Ready</span>
+  </div>
+
+  <div class="result" id="result"></div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+
+  // ---------- Refinement tiers ----------
+  const TIERS = [
+    [20,  20,  1.45],
+    [40,  50,  2.15],
+    [60, 100,  3.18],
+    [80, 130,  3.435],
+    [100,160,  3.71],
+  ];
+  const MAX_N = 100;
+  const EPS = 1e-9;
+  const GG_TTG_PER_WEEK = 1;
+
+  // ---------- Building data ----------
+  const CITY_CENTER_LEVELS = [
+    { name: "TG5-1", tg: 200, ttg: 10 },
+    { name: "TG5-2", tg: 200, ttg: 10 },
+    { name: "TG5-3", tg: 200, ttg: 10 },
+    { name: "TG5-4", tg: 200, ttg: 10 },
+    { name: "TG6",   tg: 100, ttg: 20 },
+    { name: "TG6-1", tg: 240, ttg: 15 },
+    { name: "TG6-2", tg: 240, ttg: 15 },
+    { name: "TG6-3", tg: 240, ttg: 15 },
+    { name: "TG6-4", tg: 240, ttg: 15 },
+    { name: "TG7",   tg: 120, ttg: 30 },
+    { name: "TG7-1", tg: 240, ttg: 20 },
+    { name: "TG7-2", tg: 240, ttg: 20 },
+    { name: "TG7-3", tg: 240, ttg: 20 },
+    { name: "TG7-4", tg: 240, ttg: 20 },
+    { name: "TG8",   tg: 120, ttg: 40 },
+  ];
+
+  const EMBASSY_LEVELS = [
+    { name: "TG5-1", tg: 50, ttg: 2 },
+    { name: "TG5-2", tg: 50, ttg: 2 },
+    { name: "TG5-3", tg: 50, ttg: 2 },
+    { name: "TG5-4", tg: 50, ttg: 2 },
+    { name: "TG6",   tg: 25, ttg: 5 },
+    { name: "TG6-1", tg: 60, ttg: 3 },
+    { name: "TG6-2", tg: 60, ttg: 3 },
+    { name: "TG6-3", tg: 60, ttg: 3 },
+    { name: "TG6-4", tg: 60, ttg: 3 },
+    { name: "TG7",   tg: 30, ttg: 7 },
+    { name: "TG7-1", tg: 60, ttg: 5 },
+    { name: "TG7-2", tg: 60, ttg: 5 },
+    { name: "TG7-3", tg: 60, ttg: 5 },
+    { name: "TG7-4", tg: 60, ttg: 5 },
+    { name: "TG8",   tg: 30, ttg: 10 },
+  ];
+
+  const BARRACKS_LEVELS = [
+    { name: "TG5-1", tg: 90, ttg: 4 },
+    { name: "TG5-2", tg: 90, ttg: 4 },
+    { name: "TG5-3", tg: 90, ttg: 4 },
+    { name: "TG5-4", tg: 90, ttg: 4 },
+    { name: "TG6",   tg: 45, ttg: 9 },
+    { name: "TG6-1", tg: 108, ttg: 6 },
+    { name: "TG6-2", tg: 108, ttg: 6 },
+    { name: "TG6-3", tg: 108, ttg: 6 },
+    { name: "TG6-4", tg: 108, ttg: 6 },
+    { name: "TG7",   tg: 54, ttg: 13 },
+    { name: "TG7-1", tg: 108, ttg: 9 },
+    { name: "TG7-2", tg: 108, ttg: 9 },
+    { name: "TG7-3", tg: 108, ttg: 9 },
+    { name: "TG7-4", tg: 108, ttg: 9 },
+    { name: "TG8",   tg: 54, ttg: 18 },
+  ];
+
+  const BUILDINGS = [
+    { id: "city",    label: "City Center", levels: CITY_CENTER_LEVELS },
+    { id: "embassy", label: "Embassy",     levels: EMBASSY_LEVELS },
+    { id: "barracks",label: "Barracks",    levels: BARRACKS_LEVELS },
+    { id: "stable",  label: "Stable",      levels: BARRACKS_LEVELS },
+    { id: "range",   label: "Range",       levels: BARRACKS_LEVELS },
+  ];
+
+  const BEFORE_FIRST = -1;
+
+  // ---------- Refinement helpers ----------
+  function baseCost(n) {
+    let total = 0;
+    let prev = 0;
+    for (const [upTo, cost] of TIERS) {
+      const count = Math.min(n, upTo) - prev;
+      if (count <= 0) break;
+      total += count * cost;
+      prev = upTo;
+      if (n <= upTo) break;
+    }
+    return total;
+  }
+
+  function expectedTTGFor(n) {
+    let total = 0;
+    let prev = 0;
+    for (const [upTo, , ttg] of TIERS) {
+      const count = Math.min(n, upTo) - prev;
+      if (count <= 0) break;
+      total += count * ttg;
+      prev = upTo;
+      if (n <= upTo) break;
+    }
+    return total;
+  }
+
+  function marginalCost(k) {
+    for (const [upTo, cost] of TIERS) {
+      if (k <= upTo) return cost;
+    }
+    return 0;
+  }
+
+  function actualCost(n) {
+    if (n <= 0) return 0;
+    const base = baseCost(n);
+    const m = Math.min(n, 7);
+    let discountSum = 0;
+    for (let k = n - m + 1; k <= n; k++) {
+      discountSum += marginalCost(k);
+    }
+    return base - 0.5 * discountSum;
+  }
+
+  function integerTTGFor(n, carryIn) {
+    const expected = expectedTTGFor(n) + carryIn;
+    const whole = Math.floor(expected + EPS);
+    const carry = expected - whole;
+    return { whole, carry };
+  }
+
+  const DATA = [];
+  for (let n = 0; n <= MAX_N; n++) {
+    DATA.push({
+      n,
+      cost: actualCost(n),
+      expectedTTG: expectedTTGFor(n),
+    });
+  }
+
+  // ---------- Formatting ----------
+  function fmtTG(x, digits = 2) {
+    if (!isFinite(x)) return "∞";
+    return Number(x).toLocaleString(undefined, {
+      maximumFractionDigits: digits,
+      minimumFractionDigits: 0,
+    });
+  }
+  function fmtInt(x) {
+    return Math.round(x).toLocaleString(undefined, { maximumFractionDigits: 0 });
+  }
+
+  // ---------- Simulation / planning ----------
+  function simulatePlan(plan, X, Y, Z, G0, H0, includeGG) {
+    let G = G0;
+    let H = Math.round(H0);
+    let carry = 0;
+    const weeklyIncome = 7 * X;
+    const weeklyGG = includeGG ? GG_TTG_PER_WEEK : 0;
+    const steps = [];
+
+    for (let w = 0; w < plan.length; w++) {
+      const n = plan[w];
+      const cost = actualCost(n);
+      G += weeklyIncome;
+      if (cost > G + EPS) {
+        return {
+          feasible: false,
+          reason: `Week ${w + 1}: cannot afford ${n} refinements (need ${fmtTG(cost)} TG, have ${fmtTG(G)} TG)`,
+        };
+      }
+      G -= cost;
+
+      const { whole, carry: newCarry } = integerTTGFor(n, carry);
+      carry = newCarry;
+      const gained = whole + weeklyGG;
+      H += gained;
+
+      steps.push({
+        week: w + 1,
+        n,
+        cost,
+        totalTTG: gained,
+        G,
+        H,
+      });
+    }
+
+    const okTG = G + EPS >= Y;
+    const okTTG = H + EPS >= Z;
+    return { feasible: true, okTG, okTTG, G, H, steps, carry };
+  }
+
+  function buildGreedyPlan(W, X, Y, Z, G0, H0, includeGG) {
+    const weeklyIncome = 7 * X;
+    const weeklyGG = includeGG ? GG_TTG_PER_WEEK : 0;
+    let G = G0;
+    let H = Math.round(H0);
+    let carry = 0;
+    const plan = [];
+
+    for (let w = 0; w < W; w++) {
+      const weeksLeft = W - w - 1;
+      G += weeklyIncome;
+      const reserve = Math.max(0, Y - weeksLeft * weeklyIncome);
+
+      let bestN = 0;
+      if (H + EPS < Z) {
+        const neededTTG = Z - H;
+        const weeksRemainingIncludingThis = weeksLeft + 1;
+        const targetThisWeek = Math.max(
+          0,
+          neededTTG / weeksRemainingIncludingThis - weeklyGG
+        );
+
+        let candidate = 0;
+        for (let n = 0; n <= MAX_N; n++) {
+          if (DATA[n].cost <= G - reserve + EPS) candidate = n;
+          else break;
+        }
+
+        if (candidate > 0 && DATA[candidate].expectedTTG + carry >= targetThisWeek - EPS) {
+          let lo = 0, hi = candidate;
+          while (lo < hi) {
+            const mid = Math.floor((lo + hi) / 2);
+            if (DATA[mid].expectedTTG + carry + EPS >= targetThisWeek) hi = mid;
+            else lo = mid + 1;
+          }
+          bestN = lo;
+        } else {
+          bestN = candidate;
+        }
+      }
+
+      const maxFutureExpected = weeksLeft * (DATA[MAX_N].expectedTTG + weeklyGG);
+      const expThis = DATA[bestN].expectedTTG + carry + weeklyGG;
+      if (H + Math.floor(expThis) + Math.floor(maxFutureExpected) + EPS < Z) {
+        let candidate = 0;
+        for (let n = 0; n <= MAX_N; n++) {
+          if (DATA[n].cost <= G - reserve + EPS) candidate = n;
+          else break;
+        }
+        bestN = candidate;
+      }
+
+      const cost = DATA[bestN].cost;
+      G -= cost;
+
+      const { whole, carry: newCarry } = integerTTGFor(bestN, carry);
+      carry = newCarry;
+      H += whole + weeklyGG;
+      plan.push(bestN);
+    }
+    return { plan, G, H, carry };
+  }
+
+  function findBestPlan(X, Y, Z, G0, H0, includeGG) {
+    const H0i = Math.round(H0);
+    if (G0 + EPS >= Y && H0i + EPS >= Z) {
+      return { weeks: 0, plan: [], G: G0, H: H0i, steps: [], note: "Targets already met.", includeGG };
+    }
+
+    const maxTTGPerWeek =
+      Math.floor(DATA[MAX_N].expectedTTG) + (includeGG ? GG_TTG_PER_WEEK : 0);
+    const ttgNeeded = Math.max(0, Z - H0i);
+    const lbTTG = Math.max(1, Math.ceil(ttgNeeded / Math.max(1, maxTTGPerWeek)));
+
+    let W = lbTTG;
+    const MAX_WEEKS = 10000;
+    const weeklyIncome = 7 * X;
+    let best = null;
+
+    for (; W <= MAX_WEEKS; W++) {
+      const { plan } = buildGreedyPlan(W, X, Y, Z, G0, H0i, includeGG);
+      const sim = simulatePlan(plan, X, Y, Z, G0, H0i, includeGG);
+      if (sim.feasible && sim.okTG && sim.okTTG) {
+        const improved = improvePlan(plan, X, Y, Z, G0, H0i, includeGG);
+        best = {
+          weeks: W,
+          plan: improved,
+          sim: simulatePlan(improved, X, Y, Z, G0, H0i, includeGG),
+        };
+        break;
+      }
+      if (weeklyIncome <= EPS && W > 1000) break;
+    }
+
+    if (!best) {
+      return {
+        weeks: null,
+        plan: [],
+        G: G0,
+        H: H0i,
+        note: "No feasible plan found within search limits.",
+        includeGG,
+      };
+    }
+    return {
+      weeks: best.weeks,
+      plan: best.plan,
+      G: best.sim.G,
+      H: best.sim.H,
+      steps: best.sim.steps,
+      note: "",
+      includeGG,
+    };
+  }
+
+  function improvePlan(plan, X, Y, Z, G0, H0, includeGG) {
+    const p = plan.slice();
+    let changed = true;
+    let guard = 0;
+    while (changed && guard++ < 200) {
+      changed = false;
+      for (let i = p.length - 1; i >= 0; i--) {
+        if (p[i] <= 0) continue;
+        const original = p[i];
+        while (p[i] > 0) {
+          p[i] -= 1;
+          const sim = simulatePlan(p, X, Y, Z, G0, H0, includeGG);
+          if (sim.feasible && sim.okTG && sim.okTTG) {
+            changed = true;
+          } else {
+            p[i] += 1;
+            break;
+          }
+        }
+        if (p[i] !== original) changed = true;
+      }
+    }
+    return p;
+  }
+
+  // ---------- Building selection ----------
+  const $ = (id) => document.getElementById(id);
+  const buildingGrid = $("building-grid");
+  const buildingsSummary = $("buildings-summary");
+  const targetTGInput = $("y");
+  const targetTTGInput = $("z");
+
+  function levelLabel(building, idx) {
+    if (idx === BEFORE_FIRST) return "TG5";
+    return building.levels[idx].name;
+  }
+
+  function buildSelectors() {
+    buildingGrid.innerHTML = "";
+    for (const b of BUILDINGS) {
+      const card = document.createElement("div");
+      card.className = "card building-card";
+      card.id = `card-${b.id}`;
+
+      const title = document.createElement("div");
+      title.className = "b-title";
+      title.textContent = b.label;
+      card.appendChild(title);
+
+      // Current level
+      const currentField = document.createElement("div");
+      currentField.className = "field";
+      const currentLabel = document.createElement("label");
+      currentLabel.textContent = "Current level";
+      currentLabel.setAttribute("for", `cur-${b.id}`);
+      const currentSelect = document.createElement("select");
+      currentSelect.id = `cur-${b.id}`;
+
+      // Target level
+      const targetField = document.createElement("div");
+      targetField.className = "field";
+      const targetLabel = document.createElement("label");
+      targetLabel.textContent = "Target level";
+      targetLabel.setAttribute("for", `tgt-${b.id}`);
+      const targetSelect = document.createElement("select");
+      targetSelect.id = `tgt-${b.id}`;
+
+      // Current options: "TG5" + all levels; default TG5
+      const beforeOptCur = document.createElement("option");
+      beforeOptCur.value = String(BEFORE_FIRST);
+      beforeOptCur.textContent = "TG5";
+      currentSelect.appendChild(beforeOptCur);
+
+      b.levels.forEach((lvl, idx) => {
+        const opt = document.createElement("option");
+        opt.value = String(idx);
+        opt.textContent = lvl.name;
+        currentSelect.appendChild(opt);
+      });
+      currentSelect.value = String(BEFORE_FIRST);
+
+      // Target options: all levels; default TG8
+      b.levels.forEach((lvl, idx) => {
+        const opt = document.createElement("option");
+        opt.value = String(idx);
+        opt.textContent = lvl.name;
+        targetSelect.appendChild(opt);
+      });
+      targetSelect.value = String(b.levels.length - 1);
+
+      currentSelect.addEventListener("change", () => {
+        const curIdx = parseInt(currentSelect.value, 10);
+        const tgtIdx = parseInt(targetSelect.value, 10);
+        if (tgtIdx < curIdx) targetSelect.value = String(curIdx);
+        updateTargetsFromBuildings();
+      });
+      targetSelect.addEventListener("change", () => {
+        const curIdx = parseInt(currentSelect.value, 10);
+        const tgtIdx = parseInt(targetSelect.value, 10);
+        if (tgtIdx < curIdx) targetSelect.value = String(curIdx);
+        updateTargetsFromBuildings();
+      });
+
+      currentField.appendChild(currentLabel);
+      currentField.appendChild(currentSelect);
+      targetField.appendChild(targetLabel);
+      targetField.appendChild(targetSelect);
+
+      card.appendChild(currentField);
+      card.appendChild(targetField);
+
+      const err = document.createElement("div");
+      err.className = "err";
+      err.id = `err-${b.id}`;
+      card.appendChild(err);
+
+      buildingGrid.appendChild(card);
+    }
+  }
+
+  function computeRemainingCosts() {
+    let totalTG = 0;
+    let totalTTG = 0;
+    const perBuilding = [];
+    let hasError = false;
+
+    for (const b of BUILDINGS) {
+      const curSelect = $(`cur-${b.id}`);
+      const tgtSelect = $(`tgt-${b.id}`);
+      const curIdx = parseInt(curSelect.value, 10);
+      const tgtIdx = parseInt(tgtSelect.value, 10);
+
+      const card = $(`card-${b.id}`);
+      const errEl = $(`err-${b.id}`);
+      card.classList.remove("has-error");
+      errEl.textContent = "";
+
+      if (tgtIdx < curIdx) {
+        card.classList.add("has-error");
+        errEl.textContent = "Target must be at or above current level.";
+        hasError = true;
+        perBuilding.push({ label: b.label, curIdx, tgtIdx, tg: 0, ttg: 0, invalid: true });
+        continue;
+      }
+
+      let tg = 0;
+      let ttg = 0;
+      for (let i = curIdx + 1; i <= tgtIdx; i++) {
+        tg += b.levels[i].tg;
+        ttg += b.levels[i].ttg;
+      }
+      totalTG += tg;
+      totalTTG += ttg;
+      perBuilding.push({ label: b.label, curIdx, tgtIdx, tg, ttg, invalid: false });
+    }
+    return { totalTG, totalTTG, perBuilding, hasError };
+  }
+
+  function updateTargetsFromBuildings() {
+    const { totalTG, totalTTG, perBuilding, hasError } = computeRemainingCosts();
+    if (hasError) {
+      buildingsSummary.innerHTML = `<span style="color:var(--bad);font-weight:600;">Fix the target/current level errors above.</span>`;
+      return;
+    }
+
+    targetTGInput.value = String(totalTG);
+    targetTTGInput.value = String(totalTTG);
+
+    let lines = perBuilding
+      .filter(x => x.tg > 0 || x.ttg > 0)
+      .map(x => {
+        const b = BUILDINGS.find(bb => bb.label === x.label);
+        const curName = levelLabel(b, x.curIdx);
+        const tgtName = levelLabel(b, x.tgtIdx);
+        return `<strong>${x.label}</strong> (${curName} → ${tgtName}): ${fmtInt(x.tg)} TG, ${fmtInt(x.ttg)} TTG`;
+      });
+    if (lines.length === 0) {
+      buildingsSummary.innerHTML = `No remaining upgrades for the selected current/target levels. Remaining cost: <strong>0 TG</strong>, <strong>0 TTG</strong>.`;
+    } else {
+      buildingsSummary.innerHTML =
+        lines.join("<br>") +
+        `<br><br><strong>Total remaining upgrade cost:</strong> ${fmtInt(totalTG)} TG, ${fmtInt(totalTTG)} TTG`;
+    }
+  }
+
+  // ---------- Inputs / validation ----------
+  function readInputs() {
+    return {
+      G0: parseFloat($("g0").value),
+      H0: parseFloat($("h0").value),
+      X: parseFloat($("x").value),
+      Y: parseFloat($("y").value),
+      Z: parseFloat($("z").value),
+      includeGG: $("gg").checked,
+    };
+  }
+
+  function validate(inp) {
+    const errs = [];
+    if (!isFinite(inp.G0) || inp.G0 < 0) errs.push("Initial TG must be a non-negative number.");
+    if (!isFinite(inp.H0) || inp.H0 < 0) errs.push("Initial TTG must be a non-negative number.");
+    if (!Number.isInteger(inp.H0)) errs.push("Initial TTG must be a whole number.");
+    if (!isFinite(inp.X) || inp.X < 0) errs.push("TG gained per day must be a non-negative number.");
+    if (!isFinite(inp.Y) || inp.Y < 0) errs.push("Target TG must be a non-negative number.");
+    if (!isFinite(inp.Z) || inp.Z < 0) errs.push("Target TTG must be a non-negative number.");
+    if (!Number.isInteger(inp.Z)) errs.push("Target TTG must be a whole number.");
+    return errs;
+  }
+
+  // ---------- Render results ----------
+  function render(inp, res) {
+    if (res.weeks === null) {
+      resultEl.innerHTML = `<div class="card error">${res.note}</div>`;
+      return;
+    }
+
+    const weeklyIncome = 7 * inp.X;
+    const ggPerWeek = inp.includeGG ? GG_TTG_PER_WEEK : 0;
+
+    let html = `<div class="summary">
+      <div class="stat"><div class="k">Minimum weeks</div><div class="v">${res.weeks}</div></div>
+      <div class="stat"><div class="k">Final TG</div><div class="v ${res.G + EPS >= inp.Y ? "ok" : "no"}">${fmtTG(res.G)}</div></div>
+      <div class="stat"><div class="k">Final TTG</div><div class="v ${res.H + EPS >= inp.Z ? "ok" : "no"}">${fmtInt(res.H)}</div></div>
+      <div class="stat"><div class="k">Weekly TG income</div><div class="v">${fmtTG(weeklyIncome)}</div></div>
+      <div class="stat"><div class="k">Golden Glaives TTG / week</div><div class="v">${ggPerWeek}</div></div>
+    </div>`;
+
+    if (res.steps && res.steps.length) {
+      html += `<table>
+        <thead>
+          <tr>
+            <th>Week</th>
+            <th>Refinements</th>
+            <th>TG cost</th>
+            <th>TTG gained</th>
+            <th>TG after</th>
+            <th>TTG after</th>
+          </tr>
+        </thead>
+        <tbody>`;
+      for (const s of res.steps) {
+        html += `<tr>
+          <td>${s.week}</td>
+          <td>${s.n}</td>
+          <td>${fmtTG(s.cost)}</td>
+          <td>${fmtInt(s.totalTTG)}</td>
+          <td>${fmtTG(s.G)}</td>
+          <td>${fmtInt(s.H)}</td>
+        </tr>`;
+      }
+      html += `</tbody></table>`;
+    } else if (res.weeks === 0) {
+      html += `<div class="card note">No refinement weeks needed — targets already met.</div>`;
+    }
+
+    html += `<div class="card note">
+      <strong>How this plan was found:</strong>
+      The app searches increasing week counts starting from a lower bound.
+      For each week count it builds a weekly refinement plan that:
+      (1) gains enough TTG toward the target,
+      (2) keeps enough TG to still reach the TG target by the end,
+      (3) respects the 100 refinements/week cap and the 7-most-costly 50% discount.
+      It then performs a local improvement pass that reduces weekly refinements
+      wherever possible while still meeting both targets.
+      <br><br>
+      <strong>Discount rule:</strong> the last 7 refinements you perform in a week
+      are the most costly ones, so they are the ones discounted by 50%.
+      <br><br>
+      <strong>TTG rounding:</strong> your table values are expected values, but the
+      game stores whole TTG. The app accumulates the fractional part week over week
+      and only credits a whole TTG when the accumulated fraction reaches 1.
+      <br><br>
+      <strong>Golden Glaives:</strong> when enabled, adds 1 TTG per week
+      (the event runs every 2 weeks and gives 2 TTG, simplified to 1/week).
+      This is included in the TTG gained column and final totals.
+      <br><br>
+      <strong>Building targets:</strong> for each building, the app sums the TG and
+      TTG cost of every level after the current level up to and including the target
+      level, then fills Target TG / Target TTG. You can still edit those targets manually.
+    </div>`;
+
+    resultEl.innerHTML = html;
+  }
+
+  const runBtn = $("run");
+  const statusEl = $("status");
+  const resultEl = $("result");
+
+  runBtn.addEventListener("click", () => {
+    const inp = readInputs();
+    const errs = validate(inp);
+    if (errs.length) {
+      statusEl.textContent = "Invalid input";
+      resultEl.innerHTML = `<div class="card error">${errs.join("<br>")}</div>`;
+      return;
+    }
+    statusEl.textContent = "Computing…";
+    setTimeout(() => {
+      try {
+        const res = findBestPlan(inp.X, inp.Y, inp.Z, inp.G0, inp.H0, inp.includeGG);
+        render(inp, res);
+        statusEl.textContent = res.weeks === null ? "No plan found" : `Done — ${res.weeks} week(s)`;
+      } catch (e) {
+        console.error(e);
+        statusEl.textContent = "Error";
+        resultEl.innerHTML = `<div class="card error">An error occurred: ${e.message}</div>`;
+      }
+    }, 10);
+  });
+
+  // ---------- Init ----------
+  buildSelectors();
+  updateTargetsFromBuildings();
+
+  $("recalc").addEventListener("click", () => {
+    updateTargetsFromBuildings();
+  });
+
+  runBtn.click();
+})();
+</script>
+</body>
+</html>
