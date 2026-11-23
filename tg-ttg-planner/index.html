@@ -269,7 +269,39 @@
   const GG_TTG_PER_WEEK = 1;
 
   // ---------- Building data ----------
+
+  function preTG5Chain(a, b, c, d) {
+    return [
+      { name: "31",    tg: a, ttg: 0 },
+      { name: "32",    tg: a, ttg: 0 },
+      { name: "33",    tg: a, ttg: 0 },
+      { name: "34",    tg: a, ttg: 0 },
+      { name: "TG1",   tg: a, ttg: 0 },
+      { name: "TG1-1", tg: b, ttg: 0 },
+      { name: "TG1-2", tg: b, ttg: 0 },
+      { name: "TG1-3", tg: b, ttg: 0 },
+      { name: "TG1-4", tg: b, ttg: 0 },
+      { name: "TG2",   tg: b, ttg: 0 },
+      { name: "TG2-1", tg: c, ttg: 0 },
+      { name: "TG2-2", tg: c, ttg: 0 },
+      { name: "TG2-3", tg: c, ttg: 0 },
+      { name: "TG2-4", tg: c, ttg: 0 },
+      { name: "TG3",   tg: c, ttg: 0 },
+      { name: "TG3-1", tg: d, ttg: 0 },
+      { name: "TG3-2", tg: d, ttg: 0 },
+      { name: "TG3-3", tg: d, ttg: 0 },
+      { name: "TG3-4", tg: d, ttg: 0 },
+      { name: "TG4",   tg: d, ttg: 0 },
+    ];
+  }
+
   const CITY_CENTER_LEVELS = [
+    ...preTG5Chain(132, 158, 238, 280),
+    { name: "TG4-1", tg: 335, ttg: 0 },
+    { name: "TG4-2", tg: 335, ttg: 0 },
+    { name: "TG4-3", tg: 335, ttg: 0 },
+    { name: "TG4-4", tg: 335, ttg: 0 },
+    { name: "TG5",   tg: 335, ttg: 0 },
     { name: "TG5-1", tg: 200, ttg: 10 },
     { name: "TG5-2", tg: 200, ttg: 10 },
     { name: "TG5-3", tg: 200, ttg: 10 },
@@ -288,6 +320,12 @@
   ];
 
   const EMBASSY_LEVELS = [
+    ...preTG5Chain(33, 39, 59, 70),
+    { name: "TG4-1", tg: 83, ttg: 0 },
+    { name: "TG4-2", tg: 83, ttg: 0 },
+    { name: "TG4-3", tg: 83, ttg: 0 },
+    { name: "TG4-4", tg: 83, ttg: 0 },
+    { name: "TG5",   tg: 83, ttg: 0 },
     { name: "TG5-1", tg: 50, ttg: 2 },
     { name: "TG5-2", tg: 50, ttg: 2 },
     { name: "TG5-3", tg: 50, ttg: 2 },
@@ -306,6 +344,12 @@
   ];
 
   const BARRACKS_LEVELS = [
+    ...preTG5Chain(59, 71, 107, 126),
+    { name: "TG4-1", tg: 150, ttg: 0 },
+    { name: "TG4-2", tg: 150, ttg: 0 },
+    { name: "TG4-3", tg: 150, ttg: 0 },
+    { name: "TG4-4", tg: 150, ttg: 0 },
+    { name: "TG5",   tg: 150, ttg: 0 },
     { name: "TG5-1", tg: 90, ttg: 4 },
     { name: "TG5-2", tg: 90, ttg: 4 },
     { name: "TG5-3", tg: 90, ttg: 4 },
@@ -323,15 +367,86 @@
     { name: "TG8",   tg: 54, ttg: 18 },
   ];
 
+  const COMMAND_CENTER_LEVELS = [
+    ...preTG5Chain(26, 31, 47, 56),
+    { name: "TG4-1", tg: 67, ttg: 0 },
+    { name: "TG4-2", tg: 67, ttg: 0 },
+    { name: "TG4-3", tg: 67, ttg: 0 },
+    { name: "TG4-4", tg: 67, ttg: 0 },
+    { name: "TG5",   tg: 67, ttg: 0 },
+    { name: "TG5-1", tg: 40, ttg: 2 },
+    { name: "TG5-2", tg: 40, ttg: 2 },
+    { name: "TG5-3", tg: 40, ttg: 2 },
+    { name: "TG5-4", tg: 40, ttg: 2 },
+    { name: "TG6",   tg: 20, ttg: 4 },
+    { name: "TG6-1", tg: 48, ttg: 3 },
+    { name: "TG6-2", tg: 48, ttg: 3 },
+    { name: "TG6-3", tg: 48, ttg: 3 },
+    { name: "TG6-4", tg: 48, ttg: 3 },
+    { name: "TG7",   tg: 24, ttg: 6 },
+    { name: "TG7-1", tg: 48, ttg: 4 },
+    { name: "TG7-2", tg: 48, ttg: 4 },
+    { name: "TG7-3", tg: 48, ttg: 4 },
+    { name: "TG7-4", tg: 48, ttg: 4 },
+    { name: "TG8",   tg: 24, ttg: 8 },
+  ];
+
+  const INFIRMARY_LEVELS = JSON.parse(JSON.stringify(COMMAND_CENTER_LEVELS));
+
+  const WAR_ACADEMY_LEVELS = [
+    { name: "TG1-1", tg: 71, ttg: 0 },
+    { name: "TG1-2", tg: 71, ttg: 0 },
+    { name: "TG1-3", tg: 71, ttg: 0 },
+    { name: "TG1-4", tg: 71, ttg: 0 },
+    { name: "TG2",   tg: 71, ttg: 0 },
+    { name: "TG2-1", tg: 107, ttg: 0 },
+    { name: "TG2-2", tg: 107, ttg: 0 },
+    { name: "TG2-3", tg: 107, ttg: 0 },
+    { name: "TG2-4", tg: 107, ttg: 0 },
+    { name: "TG3",   tg: 107, ttg: 0 },
+    { name: "TG3-1", tg: 126, ttg: 0 },
+    { name: "TG3-2", tg: 126, ttg: 0 },
+    { name: "TG3-3", tg: 126, ttg: 0 },
+    { name: "TG3-4", tg: 126, ttg: 0 },
+    { name: "TG4",   tg: 126, ttg: 0 },
+    { name: "TG4-1", tg: 150, ttg: 0 },
+    { name: "TG4-2", tg: 150, ttg: 0 },
+    { name: "TG4-3", tg: 150, ttg: 0 },
+    { name: "TG4-4", tg: 150, ttg: 0 },
+    { name: "TG5",   tg: 150, ttg: 0 },
+    { name: "TG5-1", tg: 90, ttg: 4 },
+    { name: "TG5-2", tg: 90, ttg: 4 },
+    { name: "TG5-3", tg: 90, ttg: 4 },
+    { name: "TG5-4", tg: 90, ttg: 4 },
+    { name: "TG6",   tg: 45, ttg: 9 },
+    { name: "TG6-1", tg: 108, ttg: 6 },
+    { name: "TG6-2", tg: 108, ttg: 6 },
+    { name: "TG6-3", tg: 108, ttg: 6 },
+    { name: "TG6-4", tg: 108, ttg: 6 },
+    { name: "TG7",   tg: 54, ttg: 13 },
+    { name: "TG7-1", tg: 108, ttg: 9 },
+    { name: "TG7-2", tg: 108, ttg: 9 },
+    { name: "TG7-3", tg: 108, ttg: 9 },
+    { name: "TG7-4", tg: 108, ttg: 9 },
+    { name: "TG8",   tg: 54, ttg: 18 },
+  ];
+
+  // defaultTarget: per-building default target level name.
+  // If omitted, the global DEFAULT_TARGET ("TG5") is used.
   const BUILDINGS = [
-    { id: "city",    label: "City Center", levels: CITY_CENTER_LEVELS },
-    { id: "embassy", label: "Embassy",     levels: EMBASSY_LEVELS },
-    { id: "barracks",label: "Barracks",    levels: BARRACKS_LEVELS },
-    { id: "stable",  label: "Stable",      levels: BARRACKS_LEVELS },
-    { id: "range",   label: "Range",       levels: BARRACKS_LEVELS },
+    { id: "city",     label: "City Center",    sentinel: "pre-TG", levels: CITY_CENTER_LEVELS,     defaultTarget: "TG8" },
+    { id: "embassy",  label: "Embassy",        sentinel: "pre-TG", levels: EMBASSY_LEVELS,         defaultTarget: "TG8" },
+    { id: "barracks", label: "Barracks",       sentinel: "pre-TG", levels: BARRACKS_LEVELS,        defaultTarget: "TG8" },
+    { id: "stable",   label: "Stable",         sentinel: "pre-TG", levels: BARRACKS_LEVELS,        defaultTarget: "TG8" },
+    { id: "range",    label: "Range",          sentinel: "pre-TG", levels: BARRACKS_LEVELS,        defaultTarget: "TG8" },
+    { id: "command",  label: "Command Center", sentinel: "pre-TG", levels: COMMAND_CENTER_LEVELS },
+    { id: "infirmary",label: "Infirmary",      sentinel: "pre-TG", levels: INFIRMARY_LEVELS },
+    { id: "academy",  label: "War Academy",    sentinel: "TG1",    levels: WAR_ACADEMY_LEVELS },
   ];
 
   const BEFORE_FIRST = -1;
+  const DEFAULT_CURRENT = "TG5";
+  const DEFAULT_TARGET = "TG5";
 
   // ---------- Refinement helpers ----------
   function baseCost(n) {
@@ -595,8 +710,16 @@
   const targetTTGInput = $("z");
 
   function levelLabel(building, idx) {
-    if (idx === BEFORE_FIRST) return "TG5";
+    if (idx === BEFORE_FIRST) return building.sentinel;
     return building.levels[idx].name;
+  }
+
+  function indexOfLevel(building, name) {
+    return building.levels.findIndex(l => l.name === name);
+  }
+
+  function defaultTargetFor(building) {
+    return building.defaultTarget || DEFAULT_TARGET;
   }
 
   function buildSelectors() {
@@ -611,7 +734,6 @@
       title.textContent = b.label;
       card.appendChild(title);
 
-      // Current level
       const currentField = document.createElement("div");
       currentField.className = "field";
       const currentLabel = document.createElement("label");
@@ -620,7 +742,6 @@
       const currentSelect = document.createElement("select");
       currentSelect.id = `cur-${b.id}`;
 
-      // Target level
       const targetField = document.createElement("div");
       targetField.className = "field";
       const targetLabel = document.createElement("label");
@@ -629,10 +750,10 @@
       const targetSelect = document.createElement("select");
       targetSelect.id = `tgt-${b.id}`;
 
-      // Current options: "TG5" + all levels; default TG5
+      // Current options: sentinel + all levels; default TG5
       const beforeOptCur = document.createElement("option");
       beforeOptCur.value = String(BEFORE_FIRST);
-      beforeOptCur.textContent = "TG5";
+      beforeOptCur.textContent = b.sentinel;
       currentSelect.appendChild(beforeOptCur);
 
       b.levels.forEach((lvl, idx) => {
@@ -641,16 +762,19 @@
         opt.textContent = lvl.name;
         currentSelect.appendChild(opt);
       });
-      currentSelect.value = String(BEFORE_FIRST);
+      const defCurIdx = indexOfLevel(b, DEFAULT_CURRENT);
+      currentSelect.value = String(defCurIdx >= 0 ? defCurIdx : BEFORE_FIRST);
 
-      // Target options: all levels; default TG8
+      // Target options: all levels; default per building
       b.levels.forEach((lvl, idx) => {
         const opt = document.createElement("option");
         opt.value = String(idx);
         opt.textContent = lvl.name;
         targetSelect.appendChild(opt);
       });
-      targetSelect.value = String(b.levels.length - 1);
+      const defTgtName = defaultTargetFor(b);
+      const defTgtIdx = indexOfLevel(b, defTgtName);
+      targetSelect.value = String(defTgtIdx >= 0 ? defTgtIdx : b.levels.length - 1);
 
       currentSelect.addEventListener("change", () => {
         const curIdx = parseInt(currentSelect.value, 10);
@@ -841,6 +965,7 @@
       <strong>Building targets:</strong> for each building, the app sums the TG and
       TTG cost of every level after the current level up to and including the target
       level, then fills Target TG / Target TTG. You can still edit those targets manually.
+      Pre-TG5 levels (31–34 and TG1–TG5, or TG1-1–TG5 for War Academy) have no TTG cost.
     </div>`;
 
     resultEl.innerHTML = html;
